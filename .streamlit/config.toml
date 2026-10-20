@@ -1,0 +1,22 @@
+[theme]
+base = "light"
+primaryColor = "#5B47D6"
+backgroundColor = "#FBFAF6"
+secondaryBackgroundColor = "#F3F0FA"
+textColor = "#1F1B3A"
+borderColor = "#ECE8F4"
+baseRadius = "0.9rem"
+
+[server]
+maxUploadSize = 25
+headless = true
+# The source watcher walks every imported module; with transformers loaded it tries to import
+# optional vision sub-modules (torchvision) and floods the terminal with tracebacks.
+# Velora does not need live code reloading, so it is switched off.
+fileWatcherType = "none"
+
+[browser]
+gatherUsageStats = false
+
+[client]
+toolbarMode = "minimal"

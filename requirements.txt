@@ -1,0 +1,19 @@
+# Velora — tested with Python 3.13 on Windows 11 (CPU only)
+
+# --- core app & acoustic analysis (required) ---
+streamlit==1.66.0
+numpy==2.5.4
+scipy==1.18.1
+pandas==3.0.6
+plotly==7.1.0
+librosa==1.0.0
+soundfile==0.14.0
+av==19.0.1          # decodes M4A/AAC/WebM/MP4 uploads (bundled FFmpeg, no system install needed)
+fpdf2==2.8.9        # PDF report export
+
+# --- AI models (optional: the app keeps working without them) ---
+# CPU-only PyTorch keeps the download small:
+#   pip install torch==2.14.1 --index-url https://download.pytorch.org/whl/cpu
+torch==2.14.1
+transformers==5.20.2
+faster-whisper==1.2.1
