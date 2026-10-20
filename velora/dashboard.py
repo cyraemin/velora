@@ -119,7 +119,8 @@ def downloads(result: dict, key: str) -> None:
     c = st.columns(3)
     if orig:
         ext = o.get("ext", "wav")
-        c[0].download_button(f"Original audio (.{ext})", orig, f"{base}_original.{ext}", A.MIME_TYPES.get(ext, "application/octet-stream"),
+        c[0].download_button(f"Original audio (.{ext})", orig, f"{base}_original.{ext}",
+                             A.MIME_TYPES.get(ext, "application/octet-stream"),
                              icon=":material/audio_file:", width="stretch", key=f"{key}_dl_orig")
     else:
         c[0].button("Original audio unavailable", disabled=True, width="stretch", key=f"{key}_dl_orig_na",

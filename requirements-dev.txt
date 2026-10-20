@@ -1,5 +1,6 @@
-# Test-only tools (not needed to run Velora)
+# Development and test tools (not needed to run Velora)
 -r requirements.txt
 pytest==9.1.1
 pypdf==6.21.1       # reads generated PDFs back in tests
 playwright==1.64.0  # end-to-end browser test; uses the installed Microsoft Edge (channel="msedge")
+ruff==0.17.1        # linting; configured in pyproject.toml

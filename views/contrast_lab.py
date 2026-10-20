@@ -153,16 +153,17 @@ with tab_words:
                         ha.append(f'<mark style="background:#EDE8FD;border-radius:4px;padding:0 3px">{a}</mark>')
                     if b:
                         hb.append(f'<mark style="background:#FBEBD6;border-radius:4px;padding:0 3px">{b}</mark>')
-            t1.markdown(f'<div class="vl-quote"><b style="color:{C.SERIES_A}">A</b> · {" ".join(ha)}</div>', unsafe_allow_html=True)
-            t2.markdown(f'<div class="vl-quote"><b style="color:{C.SERIES_B}">B</b> · {" ".join(hb)}</div>', unsafe_allow_html=True)
+            for col, lbl, color, toks in ((t1, "A", C.SERIES_A, ha), (t2, "B", C.SERIES_B, hb)):
+                col.markdown(f'<div class="vl-quote"><b style="color:{color}">{lbl}</b> · {" ".join(toks)}</div>',
+                             unsafe_allow_html=True)
             label = {"same": "the same words", "partial": "partly the same words", "different": "different words"}[al["status"]]
             st.caption(f"Word-sequence similarity: {al['similarity'] * 100:.0f}% — the recordings use {label}.")
         else:
             for col, r, lbl in ((t1, ra, "A"), (t2, rb, "B")):
                 tr = r.get("transcript")
-                col.markdown(f'<div class="vl-quote"><b>{lbl}</b> · '
-                             f'{html.escape(tr["text"]) if tr else "<i>No transcript — " + html.escape(r.get("transcript_error") or "unavailable") + "</i>"}'
-                             f'</div>', unsafe_allow_html=True)
+                body = (html.escape(tr["text"]) if tr else
+                        f'<i>No transcript — {html.escape(r.get("transcript_error") or "unavailable")}</i>')
+                col.markdown(f'<div class="vl-quote"><b>{lbl}</b> · {body}</div>', unsafe_allow_html=True)
 
     if not al["available"]:
         st.info("Word-by-word delivery needs a transcript of both recordings in the same language. "

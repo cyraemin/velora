@@ -1,4 +1,37 @@
-.venv/
+# Python
 __pycache__/
-*.pyc
+*.py[cod]
+*.egg-info/
+build/
+dist/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Tool caches
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# Secrets and local configuration (never commit these)
+.env
+.env.*
+.streamlit/secrets.toml
+
+# Local analysis history: recordings, transcripts and the SQLite database
 data/
+
+# Test fixtures and browser-test output
+fixtures/
+e2e_out/
+
+# OS and editor files
+.DS_Store
+Thumbs.db
+desktop.ini
+.idea/
+*.swp

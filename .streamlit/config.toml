@@ -20,3 +20,5 @@ gatherUsageStats = false
 
 [client]
 toolbarMode = "minimal"
+# Show only the exception type in the browser; full tracebacks stay in the server log.
+showErrorDetails = "type"

@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import datetime as dt
 import uuid
-from typing import Callable
+from collections.abc import Callable
 
 import numpy as np
 

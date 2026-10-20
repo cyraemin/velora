@@ -55,7 +55,8 @@ def transcribe(y: np.ndarray, sr: int, size: str = "base", language: str | None 
     model = _Whisper.get(size)
     if model is None:
         return None
-    assert sr == 16_000, "faster-whisper expects 16 kHz audio"
+    if sr != 16_000:
+        raise ValueError(f"faster-whisper expects 16 kHz audio, got {sr} Hz")
     segments, info = model.transcribe(
         y.astype(np.float32),
         language=language,

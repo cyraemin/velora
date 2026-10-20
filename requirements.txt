@@ -1,4 +1,4 @@
-# Velora — tested with Python 3.13 on Windows 11 (CPU only)
+# Velora runtime dependencies — Python 3.13, CPU only (Windows 11 locally, Linux on Streamlit Community Cloud)
 
 # --- core app & acoustic analysis (required) ---
 streamlit==1.66.0

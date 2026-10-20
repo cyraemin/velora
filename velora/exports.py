@@ -278,8 +278,8 @@ def pdf_report(result: dict) -> bytes:
     pdf.add_page()
     h2("All measured features", "Measured · librosa / NumPy")
     pdf.set_font(font, "B", 8.5); pdf.set_text_color(*_MUTED)
-    pdf.cell(52, 6, "Feature"); pdf.cell(26, 6, "Value", align="R"); pdf.cell(14, 6, "  Unit"); pdf.cell(0, 6, "Meaning",
-                                                                                                         new_x="LMARGIN", new_y="NEXT")
+    pdf.cell(52, 6, "Feature"); pdf.cell(26, 6, "Value", align="R"); pdf.cell(14, 6, "  Unit")
+    pdf.cell(0, 6, "Meaning", new_x="LMARGIN", new_y="NEXT")
     for i, (key, label, unit, desc) in enumerate(FEATURES):
         if i % 2 == 0:
             pdf.set_fill_color(247, 245, 254); pdf.rect(16, pdf.get_y(), 178, 5.6, "F")

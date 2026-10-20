@@ -1,0 +1,29 @@
+[project]
+name = "velora"
+version = "1.0.0"
+description = "Voice emotion recognition, acoustic analysis and expressive transcription in a Streamlit app."
+readme = "README.md"
+requires-python = ">=3.13,<3.14"
+
+[tool.ruff]
+line-length = 130
+target-version = "py313"
+extend-exclude = [".venv", "data"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "SIM"]
+ignore = [
+    "E702",   # `a; b` on one line is used deliberately in a few compact branches
+    "E741",   # `I` is the conventional alias for velora.interpret
+    "B905",   # zip() over arrays that are equal-length by construction
+    "SIM108", # explicit if/else kept where it reads better
+    "SIM117", # nested `with st.container()` blocks mirror the page layout
+]
+
+[tool.ruff.lint.per-file-ignores]
+"app.py" = ["E402"]          # environment and logging must be configured before importing streamlit
+"tests/*" = ["E402"]         # tests put the project root on sys.path before importing velora
+"velora/ui.py" = ["E501"]     # embedded stylesheet: one CSS rule per line
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

@@ -1,0 +1,6 @@
+# Normalise line endings: LF in the repository, CRLF only where Windows needs it.
+* text=auto eol=lf
+*.bat text eol=crlf
+*.svg text eol=lf
+*.png binary
+*.wav binary

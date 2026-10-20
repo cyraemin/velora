@@ -169,7 +169,8 @@ def delivery_notes(al: dict) -> list[str]:
     stretched = sorted(pairs, key=lambda p: (p["b_dur_ms"] - p["a_dur_ms"]) / max(p["a_dur_ms"], 1), reverse=True)
     top = [p for p in stretched[:3] if p["b_dur_ms"] > p["a_dur_ms"] * 1.35]
     if top:
-        notes.append("Most lengthened in B: " + ", ".join(f"“{p['word']}” ({p['a_dur_ms']}→{p['b_dur_ms']} ms)" for p in top) + ".")
+        lengthened = ", ".join(f"“{p['word']}” ({p['a_dur_ms']}→{p['b_dur_ms']} ms)" for p in top)
+        notes.append(f"Most lengthened in B: {lengthened}.")
     emph_b = [p["word"] for p in pairs if (p["b_db"] or 0) >= 3 and (p["a_db"] or 0) < 3]
     emph_a = [p["word"] for p in pairs if (p["a_db"] or 0) >= 3 and (p["b_db"] or 0) < 3]
     if emph_b:
@@ -206,7 +207,8 @@ def summary(ra: dict, rb: dict) -> list[str]:
         if r["delta"] is None:
             return
         if abs(r["delta"]) < thresh:
-            lines.append(f"**{feature}** is about the same ({fmt(r['a'], r['nd'], r['unit'])} vs {fmt(r['b'], r['nd'], r['unit'])}).")
+            a, b = fmt(r["a"], r["nd"], r["unit"]), fmt(r["b"], r["nd"], r["unit"])
+            lines.append(f"**{feature}** is about the same ({a} vs {b}).")
         else:
             lines.append(f"B is **{more if r['delta'] > 0 else less}** — {feature.lower()} "
                          f"{fmt(r['a'], r['nd'], r['unit'])} → {fmt(r['b'], r['nd'], r['unit'])}.")
@@ -268,7 +270,8 @@ def report_markdown(cmp: dict, ra: dict, rb: dict) -> str:
     if al["available"]:
         L += [f"Word-sequence similarity: {al['similarity'] * 100:.0f}% ({al['status']} wording)", ""]
         if cmp["delivery_notes"]:
-            L += ["## Same words, different delivery (measured)", ""] + [f"- {n.replace('**', '')}" for n in cmp["delivery_notes"]] + [""]
+            L += ["## Same words, different delivery (measured)", ""]
+            L += [f"- {n.replace('**', '')}" for n in cmp["delivery_notes"]] + [""]
         if al["pairs"]:
             L += ["| Word | A ms | B ms | A dB | B dB | A st | B st |", "|---|---:|---:|---:|---:|---:|---:|"]
             for p in al["pairs"]:

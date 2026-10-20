@@ -82,7 +82,8 @@ with c2:
                 rows = [{"start": w["start"], "end": w["end"], "word": w["word"].strip(), "confidence": w["prob"]}
                         for seg in tr["segments"] for w in seg["words"]]
                 st.dataframe(pd.DataFrame(rows), hide_index=True, width="stretch", height=260,
-                             column_config={"confidence": st.column_config.ProgressColumn(min_value=0, max_value=1, format="%.2f")})
+                             column_config={"confidence": st.column_config.ProgressColumn(
+                                 min_value=0, max_value=1, format="%.2f")})
 
 with st.container(key="card_an_timeline"):
     ui.header("Emotion timeline", "Model probabilities for overlapping 2-second windows")

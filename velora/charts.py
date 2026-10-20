@@ -126,7 +126,8 @@ def emotion_timeline(tl: dict, height: int = 320) -> go.Figure:
         color = EMOTION_COLORS[top] if tl["speech"][i] else "#DCD8E6"
         label = top if tl["speech"][i] else f"{top} (little speech)"
         fig.add_trace(go.Bar(
-            x=[edges[i + 1] - edges[i]], base=[edges[i]], y=[0], orientation="h", marker=dict(color=color, line=dict(width=1, color="white")),
+            x=[edges[i + 1] - edges[i]], base=[edges[i]], y=[0], orientation="h",
+            marker=dict(color=color, line=dict(width=1, color="white")),
             showlegend=False, hovertemplate=f"{edges[i]:.1f}–{edges[i + 1]:.1f}s · top: {label}<extra></extra>",
         ), row=1, col=1)
     for e in EMOTIONS:
