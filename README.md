@@ -29,7 +29,7 @@ If a model is unavailable, Velora says so; it never fills in a result.
 
 ## Getting started
 
-Requires **Python 3.13**. No GPU or FFmpeg install is needed.
+Requires **Python 3.13** (3.14 also works). No GPU or FFmpeg install is needed.
 
 ```bash
 git clone https://github.com/cyraemin/velora.git
@@ -54,7 +54,7 @@ Open <http://localhost:8501>. The models (~0.5 GB) download on the first analysi
 Velora runs on [Streamlit Community Cloud](https://share.streamlit.io) as is:
 
 1. Choose **Create app**, select this repository, branch `main` and main file `app.py`.
-2. Under **Advanced settings**, set Python to **3.13**.
+2. Deploy. Python 3.13 and 3.14 are both supported.
 
 When hosted, history is kept **in memory for each browser session only**. Visitors never see each other's
 recordings, and nothing is written to disk. On other hosts, set `VELORA_STORAGE=session` to get the same behaviour.

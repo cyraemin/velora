@@ -16,6 +16,7 @@ fpdf2==2.8.9        # PDF report export
 #   pip install torch==2.14.1 --index-url https://download.pytorch.org/whl/cpu
 torch==2.14.1 ; sys_platform != "linux"
 # Linux (Streamlit Community Cloud): pin the CPU wheel directly; plain PyPI torch pulls GBs of CUDA libs
-torch @ https://download.pytorch.org/whl/cpu/torch-2.14.1%2Bcpu-cp313-cp313-manylinux_2_28_x86_64.whl ; sys_platform == "linux"
+torch @ https://download.pytorch.org/whl/cpu/torch-2.14.1%2Bcpu-cp313-cp313-manylinux_2_28_x86_64.whl ; sys_platform == "linux" and python_version == "3.13"
+torch @ https://download.pytorch.org/whl/cpu/torch-2.14.1%2Bcpu-cp314-cp314-manylinux_2_28_x86_64.whl ; sys_platform == "linux" and python_version == "3.14"
 transformers==5.20.2
 faster-whisper==1.2.1

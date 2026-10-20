@@ -3,7 +3,7 @@ name = "velora"
 version = "1.0.0"
 description = "Voice emotion recognition, acoustic analysis and expressive transcription in a Streamlit app."
 readme = "README.md"
-requires-python = ">=3.13,<3.14"
+requires-python = ">=3.13,<3.15"
 
 [tool.ruff]
 line-length = 130
