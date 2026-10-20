@@ -1,7 +1,7 @@
 """End-to-end browser test against a running Velora server (default http://localhost:8501).
 
 Requires: pip install playwright  (uses the installed Microsoft Edge; no browser download)
-Usage:    python tests/e2e_browser.py <fixtures_dir> <speech.wav> [base_url]
+Usage:    python tests/e2e/e2e_browser.py <fixtures_dir> <speech.wav> [base_url]
 
 The microphone is simulated with Chromium's fake-media flags, which feed <speech.wav>
 into getUserMedia — so the real recorder widget is exercised.

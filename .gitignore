@@ -34,4 +34,5 @@ e2e_out/
 Thumbs.db
 desktop.ini
 .idea/
+.vscode/
 *.swp
