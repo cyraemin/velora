@@ -5,6 +5,7 @@ import html
 
 import streamlit as st
 
+from . import __version__ as VERSION
 from . import audio as A
 from . import emotion as E
 from . import pipeline as P
@@ -80,13 +81,18 @@ p, li { color: var(--ink); }
 .vl-hero-sub { color: var(--muted); font-size: 1.03rem; max-width: 760px; line-height:1.6; }
 .vl-h { font-family:'Source Serif 4',Georgia,serif; font-size:1.35rem; font-weight:600; margin:0; color:var(--ink); }
 .vl-sub { color: var(--muted); font-size:.92rem; margin:.15rem 0 .9rem; }
-.vl-emo { display:flex; gap:16px; align-items:center; padding:18px 20px; border-radius:16px;
-  background: linear-gradient(120deg,#FDF6EC 0%,#F6F2FE 100%); border:1px solid var(--line); margin-bottom: 18px; }
-.vl-emo .face { width:58px; height:58px; border-radius:50%; display:flex; align-items:center; justify-content:center;
-  font-size:30px; background:white; box-shadow: 0 4px 14px rgba(31,27,58,.08); }
+.vl-emo { display:flex; gap:16px; align-items:center; padding:16px 18px; border-radius:16px;
+  background: var(--card); border:1px solid var(--line); border-left: 5px solid var(--c); margin-bottom: 18px; }
+.vl-emo .face { width:46px; height:46px; border-radius:50%; flex:0 0 46px; border: 3px solid var(--c);
+  display:flex; align-items:center; justify-content:center; }
+.vl-emo .face i { width:16px; height:16px; border-radius:50%; background: var(--c); display:block; }
+.vl-emo .badge { display:inline-block; margin-top:6px; font-size:.72rem; font-weight:700; letter-spacing:.04em;
+  padding:2px 9px; border-radius:99px; background: var(--lav-wash); border:1px solid var(--line); color: var(--muted); }
+.vl-emo .badge.clear { background:#E3F3EE; border-color:#CBE8DE; color:#1F7A62; }
+.vl-emo .badge.unsure { background: var(--amber-soft); border-color:#F3E3CB; color: var(--amber); }
 .vl-emo .name { font-family:'Source Serif 4',Georgia,serif; font-size:1.7rem; font-weight:600; line-height:1.1; color: var(--ink); }
 .vl-emo .conf { color: var(--muted); font-size:.92rem; }
-.vl-bar { display:grid; grid-template-columns: 74px 1fr 46px; align-items:center; gap:12px; margin: 10px 0; font-size:.92rem; }
+.vl-bar { display:grid; grid-template-columns: 92px 1fr 46px; align-items:center; gap:12px; margin: 10px 0; font-size:.92rem; }
 .vl-bar .lbl { color: var(--ink); display:flex; align-items:center; gap:7px; }
 .vl-bar .lbl i { width:9px; height:9px; border-radius:50%; display:inline-block; }
 .vl-bar .track { height: 9px; border-radius: 99px; background: #EFECF4; overflow:hidden; }
@@ -94,14 +100,14 @@ p, li { color: var(--ink); }
 .vl-bar .pct { text-align:right; color: var(--ink); font-variant-numeric: tabular-nums; font-weight:600; }
 .vl-insight { display:flex; gap:14px; align-items:flex-start; padding:14px 16px; border:1px solid var(--line);
   border-radius:16px; margin-bottom:10px; background:white; }
-.vl-insight .ic { width:40px; height:40px; flex:0 0 40px; border-radius:50%; background: var(--lav-soft); color: var(--lav);
-  display:flex; align-items:center; justify-content:center; font-size:18px; }
+.vl-insight .ic { width:38px; height:38px; flex:0 0 38px; border-radius:12px; background: var(--lav-soft); color: var(--lav);
+  display:flex; align-items:center; justify-content:center; }
 .vl-insight .body { flex:1; }
 .vl-insight .top { display:flex; justify-content:space-between; font-weight:700; color: var(--ink); gap: 8px; }
 .vl-insight .note { color: var(--muted); font-size:.85rem; margin-top:3px; }
 .vl-quote { background: var(--lav-wash); border:1px solid var(--line); border-radius:16px; padding:16px 18px; line-height:1.65; }
-.vl-note { background: var(--amber-soft); border:1px solid #F3E3CB; border-radius: 14px; padding: 12px 14px;
-  font-size:.83rem; color:#6E5A3E; display:flex; gap:10px; }
+.vl-note { background: var(--amber-soft); border:1px solid #F3E3CB; border-left: 4px solid #E4B977; border-radius: 12px;
+  padding: 11px 14px; font-size:.83rem; color:#6E5A3E; line-height:1.5; }
 .vl-pill { display:inline-flex; align-items:center; gap:6px; border-radius:99px; padding:4px 12px; font-size:.8rem; font-weight:700;
   border:1px solid var(--line); background:white; color: var(--ink); margin: 2px 6px 2px 0; }
 .vl-pill i { width:8px; height:8px; border-radius:50%; display:inline-block; }
@@ -126,9 +132,6 @@ p, li { color: var(--ink); }
 .vl-step { background:white; border:1px solid var(--line); border-radius:16px; padding:14px 16px; }
 .vl-step b { display:block; margin-bottom:4px; }
 .vl-step span { color: var(--muted); font-size:.86rem; }
-.vl-brand { display:flex; gap:10px; align-items:center; margin: 4px 0 6px; }
-.vl-brand .t { font-family:'Source Serif 4',Georgia,serif; font-size:1.45rem; font-weight:600; color: var(--ink); line-height:1; }
-.vl-brand .s { font-size:.78rem; color: var(--muted); }
 .vl-foot { color: var(--muted); font-size:.78rem; text-align:center; margin-top: 1rem; }
 .vl-delta-up { color:#1F7A62; font-weight:700; } .vl-delta-down { color:#B4385C; font-weight:700; }
 
@@ -144,7 +147,6 @@ p, li { color: var(--ink); }
 .vl-status-row i { width:8px; height:8px; border-radius:50%; display:inline-block; }
 .vl-status-row b { color:var(--ink); font-weight:700; }
 .vl-status-row span { grid-column:2; color:var(--muted); font-size:.76rem; }
-.vl-foot svg { margin: 18px auto 6px; display:block; }
 .vl-iconcircle { width:54px; height:54px; border-radius:50%; background:var(--lav-soft); display:flex; align-items:center;
   justify-content:center; flex:0 0 54px; }
 .vl-inputhead { display:flex; gap:14px; align-items:center; margin-bottom:10px; }
@@ -155,7 +157,7 @@ p, li { color: var(--ink); }
 .vl-ready { display:flex; align-items:center; gap:12px; padding:12px 16px; border:1px solid var(--line); border-radius:16px;
   background:white; margin: 4px 0 10px; }
 .vl-ready .ic { width:40px; height:40px; border-radius:12px; background:var(--lav-soft); display:flex; align-items:center;
-  justify-content:center; color:var(--lav); font-size:18px; }
+  justify-content:center; flex:0 0 40px; color:var(--lav); }
 .vl-ready b { color:var(--ink); } .vl-ready span { color:var(--muted); font-size:.82rem; }
 [data-testid="stAlert"] { border-radius: 14px; }
 [data-testid="stDataFrame"] { border-radius: 12px; overflow:hidden; border:1px solid var(--line); }
@@ -177,11 +179,20 @@ h3 { margin-top: 1.4rem !important; }
 </style>
 """
 
-LOGO_SVG = """<svg width="34" height="34" viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg">
-<g stroke="#5B47D6" stroke-width="2.4" stroke-linecap="round">
-<line x1="4" y1="14" x2="4" y2="20"/><line x1="9" y1="10" x2="9" y2="24"/><line x1="14" y1="5" x2="14" y2="29"/>
-<line x1="19" y1="9" x2="19" y2="25"/><line x1="24" y1="12" x2="24" y2="22"/><line x1="29" y1="15" x2="29" y2="19"/>
-</g></svg>"""
+def _icon(paths: str, size: int = 20) -> str:
+    return (f'<svg width="{size}" height="{size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" '
+            f'stroke-linecap="round" stroke-linejoin="round">{paths}</svg>')
+
+
+ICONS = {
+    "Pitch (median)": _icon('<path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>'),
+    "Energy (RMS)": _icon('<path d="M3 12h3l3-8 6 16 3-8h3"/>'),
+    "Speaking rate": _icon('<circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2"/><path d="M9 2h6"/>'),
+    "Spectral centroid": _icon('<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4'
+                               'M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>'),
+    "Pauses": _icon('<rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/>'),
+    "file": _icon('<path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>', 18),
+}
 
 DEFAULTS = {
     "use_emotion": True,
@@ -203,41 +214,25 @@ def settings() -> dict:
     return {k: st.session_state.get(k, v) for k, v in DEFAULTS.items()}
 
 
-def sidebar() -> None:
-    with st.sidebar:
-        st.markdown(
-            f'<div class="vl-brand">{LOGO_SVG}<div><div class="t">Velora</div>'
-            f'<div class="s">Your voice. Deeper insights.</div></div></div>',
-            unsafe_allow_html=True,
-        )
-
-
 def sidebar_settings() -> None:
     with st.sidebar:
-        with st.expander("⚙️ Engine settings"):
+        with st.expander("Engine settings", icon=":material/tune:"):
             st.toggle("Emotion model", key="use_emotion",
-                      help=f"Pretrained classifier {E.MODEL_ID} (~380 MB, downloaded once).")
+                      help=f"Pretrained classifier {E.MODEL_ID} ({E.MODEL_INFO['size']}, downloaded once).")
             st.toggle("Speech-to-text", key="use_transcript", help="faster-whisper on CPU (int8).")
             st.selectbox("Whisper model", T.WHISPER_SIZES, key="whisper_size",
-                         help="base ≈ 145 MB (more accurate) · tiny ≈ 75 MB (faster)")
+                         help="base: about 145 MB, more accurate. tiny: about 75 MB, faster.")
             st.selectbox("Language", ["auto", "en", "es", "fr", "de", "it", "pt", "hi", "ar", "zh", "ja"],
                          key="language")
             st.toggle("Save analyses to History", key="save_history")
         model_status_pills()
-        st.markdown(
-            '<div class="vl-foot"><svg width="150" height="34" viewBox="0 0 150 34" fill="none">'
-            '<path d="M2 17 C 20 17, 24 6, 34 17 S 48 30, 58 17 S 70 2, 80 17 S 94 28, 104 17 S 120 10, 148 17" '
-            'stroke="#B8ACF6" stroke-width="1.6" fill="none"/><path d="M2 19 C 26 19, 30 12, 42 19 S 62 26, 74 19 '
-            'S 96 12, 110 19 S 134 22, 148 19" stroke="#DCD5FB" stroke-width="1.2" fill="none"/></svg><br>'
-            'Analyze • Understand • Express<br><span style="opacity:.8">Velora v1.0 · '
-            + ("private per-session history" if S.SESSION_ONLY else "runs 100% locally") + '</span></div>',
-            unsafe_allow_html=True,
-        )
+        where = "History is private to this session" if S.SESSION_ONLY else "Running on this computer"
+        st.markdown(f'<div class="vl-foot">Velora {VERSION}<br>{where}</div>', unsafe_allow_html=True)
 
 
 def model_status_pills() -> None:
     labels = {"loaded": ("#2A9D7F", "Ready"), "not loaded": ("#8B7CF0", "Loads on first use"),
-              "error": ("#D6456E", "Failed — see About"), "missing": ("#9A96B0", "Not installed")}
+              "error": ("#D6456E", "Failed to load, see About"), "missing": ("#9A96B0", "Not installed")}
     es, _ = E.model_status()
     ts, _ = T.transcriber_status()
     if ts == "available":
@@ -246,7 +241,7 @@ def model_status_pills() -> None:
     for name, s in (("Emotion model", es), ("Speech-to-text", ts)):
         c, txt = labels.get(s, ("#9A96B0", s))
         rows.append(f'<div class="vl-status-row"><i style="background:{c}"></i><b>{name}</b><span>{txt}</span></div>')
-    st.markdown(f'<div class="vl-status"><div class="vl-status-h">AI engine</div>{"".join(rows)}</div>',
+    st.markdown(f'<div class="vl-status"><div class="vl-status-h">Models</div>{"".join(rows)}</div>',
                 unsafe_allow_html=True)
 
 
@@ -266,11 +261,13 @@ def _engine_chip() -> str:
     es, _ = E.model_status()
     ts, _ = T.transcriber_status()
     if es == "error" or ts == "error":
-        dot, label = "#D6456E", "AI models · check About"
+        dot, label = "#D6456E", "Model error, see About"
     elif es == "missing" and ts == "missing":
         dot, label = "#9A96B0", "Acoustic analysis only"
+    elif es == "loaded":
+        dot, label = "#2A9D7F", "Models ready"
     else:
-        dot, label = "#2A9D7F" if es == "loaded" else "#8B7CF0", "AI powered" + ("" if S.SESSION_ONLY else " · runs locally")
+        dot, label = "#8B7CF0", "Models load on first use"
     return f'<span class="vl-chip-top"><i style="background:{dot}"></i>{label}</span>'
 
 
@@ -287,16 +284,24 @@ def emotion_card(emo: dict, compact: bool = False) -> None:
     if not emo or not emo.get("ok"):
         reason = (emo or {}).get("error", "No emotion prediction available.")
         st.markdown(
-            f'<div class="vl-note">⚠️<div><b>No emotion prediction.</b> {html.escape(reason)}<br>'
-            f'Acoustic measurements and transcription are unaffected.</div></div>',
+            f'<div class="vl-note"><b>No emotion prediction.</b> {html.escape(reason)} '
+            f'Acoustic measurements and transcription are unaffected.</div>',
             unsafe_allow_html=True,
         )
         return
     top = emo["top"]
+    gap = E.margin(emo)
+    if gap >= 0.4:
+        badge = '<span class="badge clear">Clear result</span>'
+    elif gap >= 0.15:
+        badge = '<span class="badge">Likely</span>'
+    else:
+        second = sorted(emo["probs"], key=emo["probs"].get)[-2]
+        badge = f'<span class="badge unsure">Uncertain: close to {html.escape(second.lower())}</span>'
     st.markdown(
-        f'<div class="vl-emo"><div class="face">{E.EMOTION_ICONS[top]}</div><div>'
-        f'<div class="name">{top}</div><div class="conf">Model probability: {emo["confidence"] * 100:.0f}% · '
-        f'{html.escape(emo["scope"])}</div></div></div>',
+        f'<div class="vl-emo" style="--c:{E.color(top)}"><div class="face"><i></i></div><div>'
+        f'<div class="name">{html.escape(top)}</div><div class="conf">Model probability {emo["confidence"] * 100:.0f}% · '
+        f'{html.escape(emo["scope"])}</div>{badge}</div></div>',
         unsafe_allow_html=True,
     )
     if not compact:
@@ -305,14 +310,19 @@ def emotion_card(emo: dict, compact: bool = False) -> None:
 
 def prob_bars(probs: dict) -> None:
     rows = []
-    for e in sorted(E.EMOTIONS, key=lambda k: -probs[k]):
+    ranked = sorted(probs, key=lambda k: -probs[k])
+    shown = [e for e in ranked if probs[e] >= 0.01] or ranked[:1]
+    hidden = [e for e in ranked if e not in shown]
+    for e in shown:
         p = probs[e]
-        c = E.EMOTION_COLORS[e]
+        c = E.color(e)
         rows.append(
             f'<div class="vl-bar"><div class="lbl"><i style="background:{c}"></i>{e}</div>'
             f'<div class="track"><div class="fill" style="width:{max(p * 100, 1.5):.1f}%;background:{c}"></div></div>'
             f'<div class="pct">{p * 100:.0f}%</div></div>'
         )
+    if hidden:
+        rows.append(f'<div class="vl-legend">Under 1%: {", ".join(hidden)}.</div>')
     st.markdown("".join(rows), unsafe_allow_html=True)
 
 
@@ -325,7 +335,7 @@ def stat_tiles(items: list[tuple[str, str]]) -> None:
 
 def insight_tiles(items: list[dict]) -> None:
     st.markdown("".join(
-        f'<div class="vl-insight"><div class="ic">{it["icon"]}</div><div class="body">'
+        f'<div class="vl-insight"><div class="ic">{ICONS.get(it["label"], "")}</div><div class="body">'
         f'<div class="top"><span>{html.escape(it["label"])}</span><span>{html.escape(it["value"])}</span></div>'
         f'<div class="note">{html.escape(it["note"])}</div></div></div>'
         for it in items
@@ -344,9 +354,9 @@ def interpretation_block(result: dict) -> None:
 
 def disclaimer() -> None:
     st.markdown(
-        '<div class="vl-note">⚠️<div>The interpretation is generated from rules applied to the measured features and '
-        'the model output. The emotion model was trained on acted English speech (IEMOCAP) and can be wrong; this is '
-        'not a psychological assessment.</div></div>',
+        '<div class="vl-note">The summary is written by fixed rules from the measurements and the model output. '
+        'Emotion predictions can be wrong, especially for short, quiet or noisy clips. This is not a psychological '
+        'assessment.</div>',
         unsafe_allow_html=True,
     )
 
@@ -381,12 +391,12 @@ def run_analysis(data: bytes, name: str, source: str) -> dict | None:
         )
     except A.AudioError as exc:
         bar.empty()
-        st.error(f"**Couldn't analyze “{name}”.** {exc}", icon=":material/error:")
+        st.error(f"**Couldn't analyse “{name}”.** {exc}", icon=":material/error:")
         return None
     except Exception as exc:  # keep the UI alive on unexpected errors
         bar.empty()
-        st.error(f"**Analysis failed unexpectedly** ({type(exc).__name__}: {exc}). Your other analyses are "
-                 "unaffected — try another file, or check the terminal for details.", icon=":material/error:")
+        st.error(f"**Analysis failed** ({type(exc).__name__}: {exc}). Your other analyses are unaffected. "
+                 "Try another file, or check the server log for details.", icon=":material/error:")
         return None
     bar.empty()
     wav = A.to_wav_bytes(y, sr)

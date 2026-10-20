@@ -5,7 +5,8 @@ import numpy as np
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
-from .emotion import EMOTION_COLORS, EMOTIONS
+from .emotion import EMOTIONS
+from .emotion import color as emotion_color
 from .features import PROFILE_AXES
 
 INK = "#1F1B3A"
@@ -114,32 +115,35 @@ def spectral_track(tracks: dict, height: int = 260) -> go.Figure:
     return _base(fig, height)
 
 
-def emotion_timeline(tl: dict, height: int = 320) -> go.Figure:
+def emotion_timeline(tl: dict, height: int = 320, window_s: float = 2.0) -> go.Figure:
     """Raw per-window model probabilities, with a band showing the top class per window."""
     fig = make_subplots(rows=2, cols=1, shared_xaxes=True, row_heights=[0.1, 0.9], vertical_spacing=0.04)
     st, en = np.array(tl["start"]), np.array(tl["end"])
     mids = np.array(tl["t"])
     # band: each window centre owns the span halfway to its neighbours
     edges = np.concatenate([[st[0]], (mids[1:] + mids[:-1]) / 2, [en[-1]]]) if len(mids) > 1 else np.array([st[0], en[0]])
+    present = [e for e in EMOTIONS if e in tl]
     for i in range(len(mids)):
-        top = max(EMOTIONS, key=lambda e: tl[e][i])
-        color = EMOTION_COLORS[top] if tl["speech"][i] else "#DCD8E6"
+        top = max(present, key=lambda e: tl[e][i])
+        fill = emotion_color(top) if tl["speech"][i] else "#DCD8E6"
         label = top if tl["speech"][i] else f"{top} (little speech)"
         fig.add_trace(go.Bar(
             x=[edges[i + 1] - edges[i]], base=[edges[i]], y=[0], orientation="h",
-            marker=dict(color=color, line=dict(width=1, color="white")),
+            marker=dict(color=fill, line=dict(width=1, color="white")),
             showlegend=False, hovertemplate=f"{edges[i]:.1f}–{edges[i + 1]:.1f}s · top: {label}<extra></extra>",
         ), row=1, col=1)
-    for e in EMOTIONS:
+    for e in present:
+        if max(tl[e]) < 0.02:   # keep the legend readable: skip classes the model never considers
+            continue
         fig.add_trace(go.Scatter(
             x=mids, y=tl[e], name=e, mode="lines+markers" if len(mids) < 4 else "lines",
-            line=dict(width=2, color=EMOTION_COLORS[e], shape="spline", smoothing=0.6),
+            line=dict(width=2, color=emotion_color(e), shape="spline", smoothing=0.6),
             marker=dict(size=8),
             hovertemplate=f"{e}: " + "%{y:.0%}<extra></extra>",
         ), row=2, col=1)
     fig.update_yaxes(visible=False, row=1, col=1)
     fig.update_yaxes(title="Model probability", range=[0, 1.02], tickformat=".0%", row=2, col=1)
-    fig.update_xaxes(title="Time (s) · 2 s analysis windows", row=2, col=1)
+    fig.update_xaxes(title=f"Time (s) · {window_s:g} s analysis windows", row=2, col=1)
     fig.update_traces(width=0.9, selector=dict(type="bar"))
     fig.update_layout(barmode="overlay", bargap=0, hovermode="x unified")
     return _base(fig, height, legend=True)
@@ -181,8 +185,9 @@ def pitch_overlay(a: tuple[str, dict], b: tuple[str, dict], height: int = 300) -
 
 def emotion_compare(a: tuple[str, dict], b: tuple[str, dict], height: int = 300) -> go.Figure:
     fig = go.Figure()
-    for (name, probs), color in ((a, SERIES_A), (b, SERIES_B)):
-        fig.add_trace(go.Bar(x=EMOTIONS, y=[probs[e] for e in EMOTIONS], name=name, marker_color=color,
+    shown = [e for e in EMOTIONS if max(a[1].get(e, 0), b[1].get(e, 0)) >= 0.01]
+    for (name, probs), series in ((a, SERIES_A), (b, SERIES_B)):
+        fig.add_trace(go.Bar(x=shown, y=[probs.get(e, 0) for e in shown], name=name, marker_color=series,
                              marker_line=dict(width=2, color="white"),
                              texttemplate="%{y:.0%}", textposition="outside", textfont=dict(color=INK),
                              hovertemplate="%{x}: %{y:.1%}<extra>" + name + "</extra>"))
@@ -231,7 +236,7 @@ def history_counts(counts: dict, height: int = 260) -> go.Figure:
     emos = [e for e in EMOTIONS if counts.get(e)]
     fig = go.Figure(go.Bar(
         x=[counts[e] for e in emos], y=emos, orientation="h",
-        marker=dict(color=[EMOTION_COLORS[e] for e in emos], cornerradius=4),
+        marker=dict(color=[emotion_color(e) for e in emos], cornerradius=4),
         text=[counts[e] for e in emos], textposition="outside", textfont=dict(color=INK),
         hovertemplate="%{y}: %{x} recordings<extra></extra>",
     ))
@@ -248,7 +253,7 @@ def history_timeline(rows: list[dict], height: int = 260) -> go.Figure:
             continue
         fig.add_trace(go.Scatter(
             x=[r["created_at"] for r in pts], y=[r["confidence"] for r in pts], mode="markers", name=e,
-            marker=dict(size=11, color=EMOTION_COLORS[e], line=dict(width=2, color="white")),
+            marker=dict(size=11, color=emotion_color(e), line=dict(width=2, color="white")),
             text=[r["name"] for r in pts],
             hovertemplate="%{text}<br>%{x}<br>" + e + " %{y:.0%}<extra></extra>",
         ))

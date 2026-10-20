@@ -3,32 +3,36 @@ import streamlit as st
 
 from velora import audio as A
 from velora import dashboard as D
+from velora import emotion as E
 from velora import ui
 
 PROMPTS = {
-    "Free speech": ("—", "Talk about your day, a recent idea, or anything on your mind for 10–20 seconds."),
-    "Happy": ("Happy", "I can't believe it — we actually did it! This is the best news I've had all year."),
+    "Free speech": ("—", "Talk about your day, a recent idea, or anything on your mind for 10 to 20 seconds."),
+    "Happy": ("Happy", "I can't believe it, we actually did it! This is the best news I've had all year."),
     "Neutral": ("Neutral", "The meeting is scheduled for Tuesday at ten. Please bring the quarterly figures."),
     "Sad": ("Sad", "I kept the letter for years. I suppose I always hoped it would end differently."),
     "Angry": ("Angry", "No. I told you three times already. This is not acceptable, and it stops today."),
+    "Fearful": ("Fearful", "Did you hear that? There's someone downstairs. Please, call someone, quickly."),
+    "Surprised": ("Surprised", "Wait, you're here? I had no idea you were coming. When did you get in?"),
+    "Disgusted": ("Disgusted", "Ugh, what is that smell? That milk has been in there for weeks. It's revolting."),
 }
 
-ui.page_title("Live studio", "Speak, listen back, and see your voice",
-              "Pick a prompt, record a take, replay it, and get instant feedback. Try reading the same "
-              "line in different moods and watch how the measurements and the model respond.")
+ui.page_title("Live studio", "Record a take and get feedback",
+              "Pick a prompt, record yourself reading it, and see how the measurements and the emotion model "
+              "respond. Reading the same line in different moods is a good way to explore.")
 st.markdown("")
 
 left, right = st.columns([1, 1.15], gap="large")
 with left:
     with st.container(key="card_studio_prompt"):
-        ui.header("1 · Choose a prompt", "Optional — the target is only used to compare against the model")
+        ui.header("1 · Choose a prompt", "Optional. The target mood is only compared with the model's answer.")
         choice = st.pills("Prompt", list(PROMPTS), default="Free speech", label_visibility="collapsed",
                           key="studio_prompt") or "Free speech"
         target, text = PROMPTS[choice]
         st.markdown(f'<div class="vl-quote vl-serif" style="font-size:1.15rem">“{text}”</div>',
                     unsafe_allow_html=True)
     with st.container(key="card_studio_rec"):
-        ui.header("2 · Record", "Click the mic to start, click the stop button to finish, then press play to replay")
+        ui.header("2 · Record", "Click the microphone to start and again to stop")
         rec = st.audio_input("Studio recording", label_visibility="collapsed", key="studio_rec")
         auto = st.toggle("Analyse automatically after each take", value=True, key="studio_auto")
         go = st.button("Analyse this take", type="primary", disabled=rec is None, icon=":material/graphic_eq:")
@@ -53,7 +57,7 @@ if rec is not None:
                     "Target": target,
                     "Model top class": emo["top"] if emo.get("ok") else "—",
                     "Probability": round(emo["confidence"], 3) if emo.get("ok") else None,
-                    "Match": ("✅" if emo.get("ok") and emo["top"] == target else ("—" if target == "—" else "❌")),
+                    "Match": ("—" if target == "—" else ("Yes" if emo.get("ok") and emo["top"] == target else "No")),
                     "Pitch (Hz)": result["stats"]["pitch_median"],
                     "Pitch var (st)": result["stats"]["pitch_var_st"],
                     "Energy (dBFS)": result["stats"]["energy_db"],
@@ -66,7 +70,7 @@ result = result or ui.get_result(st.session_state.get("studio_result_id"))
 with right:
     if result is None:
         with st.container(key="card_studio_empty"):
-            ui.empty_state("No take yet", "Record a clip on the left — results appear here in a few seconds.")
+            ui.empty_state("No take yet", "Record a clip on the left. Results appear here a few seconds later.")
     else:
         q = result["quality"]
         with st.container(key="card_studio_quality"):
@@ -81,17 +85,17 @@ with right:
             st.markdown("")
             tips = []
             if q["clipping_pct"] > 0.1:
-                tips.append("Some samples clipped — move back from the mic or lower input gain.")
+                tips.append("Some samples clipped. Move back from the microphone or lower the input gain.")
             if q["peak_dbfs"] < -20:
-                tips.append("The level is low — speak closer to the microphone.")
+                tips.append("The level is low. Speak closer to the microphone.")
             if q["snr_db"] < 15:
                 tips.append("Background noise is high relative to your voice; measurements may be less reliable.")
             if result["stats"]["speech_duration"] < 2:
-                tips.append("Very little speech detected — longer takes (5 s+) give steadier results.")
-            st.caption(" ".join(tips) if tips else "✓ Clean recording — good level, no clipping.")
+                tips.append("Very little speech detected. Takes of 5 seconds or more give steadier results.")
+            st.caption(" ".join(tips) if tips else "Clean recording: good level and no clipping.")
         with st.container(key="card_studio_emotion"):
             ui.header("Emotion model", "Clip-level prediction")
-            ui.source_tag("model", "Model output · wav2vec2 (IEMOCAP)")
+            ui.source_tag("model", f"Model output · {E.short_name(result['emotion'])}")
             ui.emotion_card(result["emotion"])
         with st.container(key="card_studio_text"):
             ui.header("Expressive text")
@@ -100,7 +104,7 @@ with right:
             st.markdown("")
             ui.source_tag("derived")
             ui.interpretation_block(result)
-        st.page_link("views/analysis.py", label="Open full analysis →", icon=":material/description:")
+        st.page_link("views/analysis.py", label="Open full analysis", icon=":material/description:")
 
 takes = st.session_state.get("takes", [])
 if takes:

@@ -43,12 +43,15 @@ def analyze(
     stats = F.summarize(fr)
 
     if use_emotion:
-        step(0.40, "Running emotion model…")
+        first_load = E.model_status()[0] != "loaded"
+        step(0.30, "Loading the emotion model (first run only, about a minute)…" if first_load
+             else "Running emotion model…")
 
         def has_speech(a, b):
             return F.summarize(fr, a, b)["speech_duration"] >= 0.25 * (b - a)
 
-        emotion = E.analyze_emotion(y, sr, has_speech)
+        emotion = E.analyze_emotion(y, sr, has_speech,
+                                    progress=lambda f: step(0.30 + 0.33 * f, "Running emotion model…"))
     else:
         emotion = {"ok": False, "error": "Emotion model disabled in settings.", "disabled": True}
 

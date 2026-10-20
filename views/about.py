@@ -10,8 +10,8 @@ from velora import transcribe as T
 from velora import ui
 
 ui.page_title("About", "How Velora works",
-              "Velora listens to how you speak — not just what you say — and keeps every number traceable "
-              "to where it came from.")
+              "Velora looks at how you speak as well as what you say, and labels every number with where it "
+              "came from.")
 st.markdown("")
 
 with st.container(key="card_about_sources"):
@@ -38,14 +38,14 @@ with c1:
         ts, terr = T.transcriber_status()
         info = E.MODEL_INFO
         st.markdown(
-            f"**Emotion — [{info['id']}]({info['url']})**  \n"
+            f"**Emotion: [{info['id']}]({info['url']})**  \n"
             f"{info['architecture']} · trained on {info['training_data']} · classes: {info['classes']} · "
-            f"~380 MB · status: `{es}`"
+            f"{info['size']} · status: `{es}`"
         )
         if eerr:
             st.error(eerr)
         st.markdown(
-            "**Speech-to-text — faster-whisper (CTranslate2 Whisper)**  \n"
+            "**Speech-to-text: faster-whisper (CTranslate2 Whisper)**  \n"
             f"Sizes offered: {', '.join(T.WHISPER_SIZES)} · int8 on CPU · word timestamps + VAD · status: `{ts}`"
         )
         if terr:
@@ -57,8 +57,8 @@ with c2:
     with st.container(key="card_about_limits"):
         ui.header("Limits worth knowing")
         st.markdown(
-            "- The emotion model knows **four classes** (neutral, happy, angry, sad) and was trained on *acted* "
-            "English speech. Real emotion is richer, and accuracy drops for other languages, accents and noisy audio.\n"
+            "- The emotion model picks from **seven emotions** plus *other*. Real feelings are often mixed or subtle, "
+            "so treat the result as an estimate. Accuracy drops for very short, quiet or noisy clips.\n"
             "- Absolute **loudness** depends on your microphone and gain; compare levels only between clips "
             "recorded the same way.\n"
             "- **Pitch** ranges differ between speakers; Velora describes your pitch, it doesn't grade it.\n"
@@ -74,7 +74,7 @@ with st.container(key="card_about_privacy"):
                     "when you close the tab. For fully offline use, run Velora on your own computer.")
     else:
         st.markdown("Audio never leaves your computer. Analyses are stored in `data/velora.db` with a 16 kHz copy of "
-                    "the audio in `data/audio/` — delete them anytime from **History**, or turn off saving in "
+                    "the audio in `data/audio/`. Delete them at any time from **History**, or turn off saving in "
                     "**Engine settings**. The only network access is the one-time model download.")
 
 with st.expander("Environment"):

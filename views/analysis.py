@@ -19,7 +19,7 @@ for row in S.list_all():
     options.setdefault(row["id"], f"{row['name']} · {row['created_at'].replace('T', ' ')}")
 
 ui.page_title("Analysis", "Full voice report",
-              "Every measurement, every model output, and how they were turned into words — clearly separated.")
+              "Every measurement and model output for one recording, kept separate from the written interpretation.")
 st.markdown("")
 
 if not options:
@@ -55,11 +55,11 @@ k[5].metric("Pauses", s["pause_count"])
 
 # ---- 1. Model outputs
 st.markdown("### Model outputs")
-st.caption("Raw predictions of the pretrained models — nothing here is computed by rules.")
+st.caption("Raw predictions of the pretrained models. Nothing in this section is computed by rules.")
 c1, c2 = st.columns(2, gap="large")
 with c1:
     with st.container(key="card_an_emotion"):
-        ui.header("Speech emotion recognition", E.MODEL_ID)
+        ui.header("Speech emotion recognition", emo.get("model", E.MODEL_ID))
         ui.source_tag("model")
         ui.emotion_card(emo)
         if emo.get("ok"):
@@ -67,9 +67,13 @@ with c1:
                 st.dataframe(pd.DataFrame({"class": list(emo["probs"]), "probability": list(emo["probs"].values())}),
                              hide_index=True, width="stretch")
                 info = E.MODEL_INFO
-                st.markdown(f"- **Model:** [{info['id']}]({info['url']})\n- **Architecture:** {info['architecture']}\n"
-                            f"- **Training data:** {info['training_data']}\n- **Classes:** {info['classes']}\n"
-                            f"- **Scope of this score:** {emo['scope']}")
+                if emo.get("model", E.MODEL_ID) == E.MODEL_ID:
+                    st.markdown(f"- **Model:** [{info['id']}]({info['url']})\n- **Architecture:** {info['architecture']}\n"
+                                f"- **Training data:** {info['training_data']}\n- **Classes:** {info['classes']}\n"
+                                f"- **Scope of this score:** {emo['scope']}")
+                else:
+                    st.markdown(f"- **Model:** {emo['model']} (earlier Velora version)\n"
+                                f"- **Scope of this score:** {emo['scope']}")
 with c2:
     with st.container(key="card_an_transcript"):
         ui.header("Speech-to-text", "faster-whisper")
@@ -86,13 +90,13 @@ with c2:
                                  min_value=0, max_value=1, format="%.2f")})
 
 with st.container(key="card_an_timeline"):
-    ui.header("Emotion timeline", "Model probabilities for overlapping 2-second windows")
+    ui.header("Emotion timeline", f"Model probabilities for overlapping {emo.get('window_s', 2.0):g}-second windows")
     D.timeline(result, "an", 340)
     if emo.get("ok"):
         with st.expander("Window-level outputs"):
             tl = emo["timeline"]
             df = pd.DataFrame({"start (s)": tl["start"], "end (s)": tl["end"], "contains speech": tl["speech"],
-                               **{e: tl[e] for e in E.EMOTIONS}})
+                               **{e: tl[e] for e in E.EMOTIONS if e in tl}})
             st.dataframe(df, hide_index=True, width="stretch", height=260)
 
 # ---- 2. Measurements

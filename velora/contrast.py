@@ -81,13 +81,13 @@ def checks(ra: dict, rb: dict) -> list[tuple[str, str]]:
     """(level, message) with level in {'error','warning','info'}."""
     out = []
     if ra["id"] == rb["id"]:
-        out.append(("error", "A and B are the same analysis — choose two different recordings."))
+        out.append(("error", "A and B are the same analysis. Choose two different recordings."))
     elif ra.get("audio_hash") and ra.get("audio_hash") == rb.get("audio_hash"):
         out.append(("warning", "A and B contain identical audio, so every difference will be zero."))
     for lbl, r in (("A", ra), ("B", rb)):
         s = r["stats"]
         if s["speech_duration"] < 1.0:
-            out.append(("warning", f"Recording {lbl} has only {s['speech_duration']:.1f}s of detected speech — "
+            out.append(("warning", f"Recording {lbl} has only {s['speech_duration']:.1f}s of detected speech, so "
                                    "its statistics are unreliable."))
         if not s["pitch_median"]:
             out.append(("warning", f"No pitch was detectable in recording {lbl}; pitch comparisons are skipped."))
@@ -105,19 +105,19 @@ def checks(ra: dict, rb: dict) -> list[tuple[str, str]]:
             out.append(("warning", "At least one recording is noisy (estimated SNR < 12 dB); pitch and energy "
                                    "measurements may be affected."))
         if abs(qa["peak_dbfs"] - qb["peak_dbfs"]) > 10:
-            out.append(("info", "Recording levels differ by more than 10 dB — loudness differences may reflect "
+            out.append(("info", "Recording levels differ by more than 10 dB, so loudness differences may reflect "
                                 "microphone gain rather than delivery."))
     ea, eb = ra.get("emotion") or {}, rb.get("emotion") or {}
     if not (ea.get("ok") and eb.get("ok")):
         miss = [lbl for lbl, e in (("A", ea), ("B", eb)) if not e.get("ok")]
-        out.append(("info", f"No emotion-model output for recording {' and '.join(miss)} — the emotion comparison "
+        out.append(("info", f"No emotion-model output for recording {' and '.join(miss)}, so the emotion comparison "
                             "is limited to what is available."))
     elif ea.get("model") != eb.get("model"):
         out.append(("warning", "The two recordings were classified by different emotion models."))
     ta, tb = ra.get("transcript"), rb.get("transcript")
     if not (ta and tb):
         miss = [lbl for lbl, t in (("A", ta), ("B", tb)) if not t]
-        out.append(("info", f"No transcript for recording {' and '.join(miss)} — the word-by-word delivery "
+        out.append(("info", f"No transcript for recording {' and '.join(miss)}, so the word-by-word delivery "
                             "comparison needs both."))
     elif ta["language"] != tb["language"]:
         out.append(("warning", f"Different languages detected ({ta['language']} vs {tb['language']}); "
@@ -163,7 +163,7 @@ def delivery_notes(al: dict) -> list[str]:
     ratio = float(np.median(db / np.maximum(da, 1)))
     if abs(ratio - 1) >= 0.1:
         notes.append(f"Shared words last **{abs(ratio - 1) * 100:.0f}% {'longer' if ratio > 1 else 'shorter'}** in B "
-                     f"(median per-word duration ratio {ratio:.2f}) — B {'stretches' if ratio > 1 else 'clips'} its syllables.")
+                     f"(median per-word duration ratio {ratio:.2f}): B {'stretches' if ratio > 1 else 'clips'} its syllables.")
     else:
         notes.append("Per-word durations are similar in both recordings.")
     stretched = sorted(pairs, key=lambda p: (p["b_dur_ms"] - p["a_dur_ms"]) / max(p["a_dur_ms"], 1), reverse=True)
@@ -183,7 +183,7 @@ def delivery_notes(al: dict) -> list[str]:
         spread_b = np.std([p["b_st"] for p in pairs if p["b_st"] is not None])
         if abs(spread_b - spread_a) >= 0.7:
             notes.append(f"Word pitches spread **{'wider' if spread_b > spread_a else 'narrower'}** in B "
-                         f"({spread_a:.1f} → {spread_b:.1f} st SD, each relative to its own speaker median) — "
+                         f"({spread_a:.1f} → {spread_b:.1f} st SD, each relative to its own speaker median). "
                          f"{'more' if spread_b > spread_a else 'less'} melodic phrasing.")
         big = sorted(st_pairs, key=lambda t: -abs(t[1]))[:3]
         big = [t for t in big if abs(t[1]) >= 3]
@@ -192,7 +192,7 @@ def delivery_notes(al: dict) -> list[str]:
     ga = sum(1 for p in pairs if p["a_gap"] >= I.PAUSE_MARK_S)
     gb = sum(1 for p in pairs if p["b_gap"] >= I.PAUSE_MARK_S)
     if ga != gb:
-        notes.append(f"Pauses before shared words: {ga} in A vs {gb} in B — "
+        notes.append(f"Pauses before shared words: {ga} in A vs {gb} in B. "
                      f"B is {'more broken-up' if gb > ga else 'more continuous'}.")
     return notes
 
@@ -210,7 +210,7 @@ def summary(ra: dict, rb: dict) -> list[str]:
             a, b = fmt(r["a"], r["nd"], r["unit"]), fmt(r["b"], r["nd"], r["unit"])
             lines.append(f"**{feature}** is about the same ({a} vs {b}).")
         else:
-            lines.append(f"B is **{more if r['delta'] > 0 else less}** — {feature.lower()} "
+            lines.append(f"B is **{more if r['delta'] > 0 else less}**: {feature.lower()} "
                          f"{fmt(r['a'], r['nd'], r['unit'])} → {fmt(r['b'], r['nd'], r['unit'])}.")
 
     cmp("Median pitch", "higher-pitched", "lower-pitched", 8)
@@ -285,12 +285,13 @@ def report_markdown(cmp: dict, ra: dict, rb: dict) -> str:
                  f"{fmt(r['delta'], r['nd'], r['unit'], sign=True)}{pct} |")
     L += ["", f"## Emotion model output ({cmp['emotion']['model'] or 'not available'})", "",
           "| Class | A | B |", "|---|---:|---:|"]
-    for e in E.EMOTIONS:
-        a = cmp["emotion"]["a"]
-        b = cmp["emotion"]["b"]
-        L.append(f"| {e} | {f'{a[e] * 100:.1f}%' if a else '—'} | {f'{b[e] * 100:.1f}%' if b else '—'} |")
-    L += ["", "---", "_Generated locally by Velora. Emotion probabilities are raw outputs of a model trained on acted "
-          "English speech; they are not a psychological assessment._"]
+    a, b = cmp["emotion"]["a"], cmp["emotion"]["b"]
+    for e in [e for e in E.EMOTIONS if e in (a or {}) or e in (b or {})]:
+        pa = f"{a[e] * 100:.1f}%" if a and e in a else "—"
+        pb = f"{b[e] * 100:.1f}%" if b and e in b else "—"
+        L.append(f"| {e} | {pa} | {pb} |")
+    L += ["", "---", "_Generated by Velora. Emotion probabilities are raw outputs of a pretrained model and can be "
+          "wrong; they are not a psychological assessment._"]
     return "\n".join(L)
 
 

@@ -65,33 +65,33 @@ with sync_playwright() as p:
 
     # ---------------------------------------------------------------- startup
     goto(page, "")
-    check("startup: home renders", page.get_by_text("Turn Your Voice Into Insights").is_visible())
-    check("startup: Analyze disabled before input", page.get_by_role("button", name="Analyze voice").is_disabled())
+    check("startup: home renders", page.get_by_text("Analyse a voice recording").is_visible())
+    check("startup: Analyse disabled before input", page.get_by_role("button", name="Analyse voice").is_disabled())
     no_exceptions(page, "home")
 
     # ---------------------------------------------------------------- error handling
     page.locator("[data-testid='stFileUploader'] input[type=file]").set_input_files(str(FX / "fx_corrupt.wav"))
     idle(page)
-    page.get_by_role("button", name="Analyze voice").click()
+    page.get_by_role("button", name="Analyse voice").click()
     idle(page)
-    err = page.locator("[data-testid='stAlert']").filter(has_text="Couldn't analyze")
+    err = page.locator("[data-testid='stAlert']").filter(has_text="Couldn't analyse")
     check("error: corrupt file shows a clear message", err.count() > 0,
           err.first.inner_text()[:160] if err.count() else "no alert")
     no_exceptions(page, "home after corrupt upload")
     page.get_by_role("button", name="Clear").click()
     idle(page)
-    check("clear: selection removed", page.get_by_text("ready to analyze").count() == 0
-          and page.get_by_role("button", name="Analyze voice").is_disabled())
+    check("clear: selection removed", page.get_by_text("Ready to analyse").count() == 0
+          and page.get_by_role("button", name="Analyse voice").is_disabled())
 
     # ---------------------------------------------------------------- upload + analysis (m4a)
     page.locator("[data-testid='stFileUploader'] input[type=file]").set_input_files(str(FX / "fx.m4a"))
     idle(page)
-    check("upload: file shown as ready", page.get_by_text("ready to analyze").count() > 0)
+    check("upload: file shown as ready", page.get_by_text("Ready to analyse").count() > 0)
     t0 = time.time()
-    page.get_by_role("button", name="Analyze voice").click()
-    page.wait_for_selector("text=Emotion Recognition", timeout=600000)
+    page.get_by_role("button", name="Analyse voice").click()
+    page.wait_for_selector(".vl-emo, .vl-note", timeout=600000)
     idle(page, 600)
-    check("analysis: dashboard rendered for m4a upload", page.get_by_text("Key Acoustic Insights").count() > 0,
+    check("analysis: dashboard rendered for m4a upload", page.get_by_text("Key measurements").count() > 0,
           f"{time.time() - t0:.0f}s incl. model loading")
     prob = page.get_by_text("Model probability").count()
     check("analysis: emotion model output shown", prob > 0)

@@ -11,8 +11,8 @@ from velora import storage as S
 from velora import ui
 
 ui.page_title("Contrast lab", "Compare two recordings",
-              "Same sentence, different mood? Before and after practice? Put two recordings side by side and see "
-              "what changed — in the measurements, in the words, and in the emotion model's output.")
+              "Put two recordings side by side, such as the same sentence in two moods or a take before and after "
+              "practice, and see what changed in the measurements, the words and the emotion model's output.")
 st.markdown("")
 
 
@@ -40,7 +40,7 @@ def slot(label: str, key: str, color: str) -> dict | None:
         if mode == "Saved":
             opts = _options()
             if not opts:
-                st.caption("No saved analyses yet — upload or record instead.")
+                st.caption("No saved analyses yet. Upload or record instead.")
                 return None
             ids = list(opts)
             pre = st.session_state.get(f"contrast_{key}")
@@ -67,7 +67,7 @@ def slot(label: str, key: str, color: str) -> dict | None:
                 st.session_state[f"contrast_{key}"] = res["id"]
         res = ui.get_result(st.session_state.get(f"contrast_{key}"))
         if res is None:
-            st.warning("This analysis could not be loaded — it may have been deleted.")
+            st.warning("This analysis could not be loaded. It may have been deleted.")
             return None
         wav = ui.audio_bytes(res["id"])
         if wav:
@@ -83,10 +83,10 @@ with ca:
     ra = slot("A", "a", C.SERIES_A)
 with cb:
     rb = slot("B", "b", C.SERIES_B)
-st.button("⇄ Swap A and B", on_click=_swap, disabled=not (ra and rb))
+st.button("Swap A and B", on_click=_swap, disabled=not (ra and rb), icon=":material/swap_horiz:")
 
 if not (ra and rb):
-    st.info("Choose two recordings to compare. Tip: in the Live Studio, read the same prompt in two moods, "
+    st.info("Choose two recordings to compare. For example, read the same Live Studio prompt in two moods, "
             "then compare the takes here.", icon=":material/compare_arrows:")
     st.stop()
 
@@ -101,7 +101,10 @@ if notes:
     with st.expander(f"Comparison notes ({len(notes)})", expanded=any(lvl == "warning" for lvl, _ in notes),
                      icon=":material/info:"):
         for lvl, m in notes:
-            st.markdown(f"{'⚠️' if lvl == 'warning' else 'ℹ️'} {m}")
+            if lvl == "warning":
+                st.warning(m, icon=":material/warning:")
+            else:
+                st.markdown(f"- {m}")
 
 st.markdown("")
 tab_over, tab_words, tab_emo, tab_pitch = st.tabs(
@@ -157,12 +160,12 @@ with tab_words:
                 col.markdown(f'<div class="vl-quote"><b style="color:{color}">{lbl}</b> · {" ".join(toks)}</div>',
                              unsafe_allow_html=True)
             label = {"same": "the same words", "partial": "partly the same words", "different": "different words"}[al["status"]]
-            st.caption(f"Word-sequence similarity: {al['similarity'] * 100:.0f}% — the recordings use {label}.")
+            st.caption(f"Word-sequence similarity: {al['similarity'] * 100:.0f}%. The recordings use {label}.")
         else:
             for col, r, lbl in ((t1, ra, "A"), (t2, rb, "B")):
                 tr = r.get("transcript")
                 body = (html.escape(tr["text"]) if tr else
-                        f'<i>No transcript — {html.escape(r.get("transcript_error") or "unavailable")}</i>')
+                        f'<i>No transcript: {html.escape(r.get("transcript_error") or "unavailable")}</i>')
                 col.markdown(f'<div class="vl-quote"><b>{lbl}</b> · {body}</div>', unsafe_allow_html=True)
 
     if not al["available"]:

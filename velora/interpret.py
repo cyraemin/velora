@@ -1,6 +1,6 @@
 """Textual interpretation and expressive transcription.
 
-Everything here is *derived* — rule-based wording built from measured acoustic
+Everything here is *derived*: rule-based wording built from measured acoustic
 values and from the emotion model's actual output. Nothing is predicted here.
 """
 from __future__ import annotations
@@ -10,7 +10,7 @@ import html
 import numpy as np
 
 from . import features as F
-from .emotion import EMOTION_COLORS, dominant_at
+from .emotion import color, dominant_at
 
 PAUSE_MARK_S = 0.35
 LONG_PAUSE_S = 0.8
@@ -68,7 +68,6 @@ def insights(stats: dict, transcript: dict | None) -> list[dict]:
     wpm, wpm_src = speaking_rate(stats, transcript)
     out = [
         {
-            "icon": "♪",
             "label": "Pitch (median)",
             "value": f"{stats['pitch_median']:.0f} Hz" if stats["pitch_median"] else "—",
             "note": (
@@ -78,25 +77,21 @@ def insights(stats: dict, transcript: dict | None) -> list[dict]:
             ),
         },
         {
-            "icon": "◉",
             "label": "Energy (RMS)",
             "value": f"{stats['energy_db']:.1f} dBFS",
             "note": f"{level_word(stats['energy_db']).capitalize()} level, {stats['energy_std_db']:.1f} dB variation",
         },
         {
-            "icon": "⏱",
             "label": "Speaking rate",
             "value": f"{wpm:.0f} wpm" if wpm else "—",
             "note": f"{pace_word(wpm).capitalize()} pace · {wpm_src}",
         },
         {
-            "icon": "◐",
             "label": "Spectral centroid",
             "value": f"{stats['centroid']:.0f} Hz",
             "note": "Brighter timbre" if stats["centroid"] > 1800 else "Warmer, darker timbre",
         },
         {
-            "icon": "⏸",
             "label": "Pauses",
             "value": f"{stats['pause_count']}",
             "note": (
@@ -220,7 +215,7 @@ def phrases(fr: dict, min_pause: float = 0.3) -> list[dict]:
 def _chip(emo: str | None) -> str:
     if not emo:
         return ""
-    c = EMOTION_COLORS[emo]
+    c = color(emo)
     return (f'<span class="vl-chip" title="Emotion model, dominant class for this span">'
             f'<i style="background:{c}"></i>{emo}</span>')
 
@@ -237,7 +232,7 @@ def expressive_html(result: dict) -> str:
             for w in seg["words"]:
                 gap = w.get("gap_before", 0)
                 if gap >= LONG_PAUSE_S:
-                    toks.append(f'<span class="vl-pause">⏸ {gap:.1f}s</span>')
+                    toks.append(f'<span class="vl-pause">‖ {gap:.1f}s</span>')
                 elif gap >= PAUSE_MARK_S:
                     toks.append('<span class="vl-pause">…</span>')
                 word = html.escape(w["word"].strip())
@@ -270,7 +265,7 @@ def expressive_html(result: dict) -> str:
             desc.append(f"{ph['energy_db']:.0f} dBFS")
             blocks.append(
                 f'<p class="vl-seg"><span class="vl-ts">{ph["start"]:.1f}s</span>{_chip(dom)} '
-                f'<b>Phrase {i}</b> — {" · ".join(desc)}</p>'
+                f'<b>Phrase {i}</b>: {" · ".join(desc)}</p>'
             )
     return "".join(blocks) or "<p class='vl-muted'>No speech detected.</p>"
 

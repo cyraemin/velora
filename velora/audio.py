@@ -48,7 +48,7 @@ def _decode(data: bytes, filename: str) -> tuple[np.ndarray, int]:
         return _decode_av(data)
     except Exception as exc:
         raise AudioError(
-            f"Could not decode '{filename or 'audio'}' — the file is damaged or not a supported audio "
+            f"Could not decode '{filename or 'audio'}'. The file is damaged or not a supported audio "
             f"format ({', '.join(SUPPORTED_TYPES).upper()})."
         ) from exc
 

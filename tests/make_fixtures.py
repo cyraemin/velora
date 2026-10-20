@@ -18,10 +18,10 @@ def encode_av(y: np.ndarray, sr: int, path: Path, container: str, codec: str, ou
         frame = av.AudioFrame.from_ndarray(pcm[None, :], format="s16", layout="mono")
         frame.sample_rate = sr
         resampler = av.AudioResampler(format=st.format.name, layout="mono", rate=out_sr)
-        for f in resampler.resample(frame):
-            for pkt in st.encode(f):
-                out.mux(pkt)
-        for f in resampler.resample(None):
+        # let the encoder assign timestamps: the resampler's flushed frames can otherwise
+        # carry pts values that make the muxer reject the final packets
+        for f in [*resampler.resample(frame), *resampler.resample(None)]:
+            f.pts = None
             for pkt in st.encode(f):
                 out.mux(pkt)
         for pkt in st.encode(None):

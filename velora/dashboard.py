@@ -7,6 +7,7 @@ import streamlit as st
 
 from . import audio as A
 from . import charts as C
+from . import emotion as E
 from . import exports as X
 from . import features as F
 from . import interpret as I
@@ -30,7 +31,7 @@ def player(result: dict) -> None:
     wav = ui.audio_bytes(result["id"])
     c1, c2 = st.columns([3, 2], vertical_alignment="center")
     with c1:
-        st.markdown(f"**🎵 {html.escape(result['name'])}**")
+        st.markdown(f"**{html.escape(result['name'])}**")
         st.caption(f"{s['duration']:.1f}s · speech {s['speech_duration']:.1f}s · {result['source']} · "
                    f"{result['created_at'].replace('T', ' ')}" + (" · truncated to 3 min" if result.get("truncated") else ""))
     with c2:
@@ -56,7 +57,7 @@ def acoustic_tabs(result: dict, key: str, height: int = 280) -> None:
         if spectral:
             st.plotly_chart(C.mfcc(spectral[3], spectral[4], height + 20), config=PLOT_CFG, key=f"{key}_mfcc")
             st.caption("Mel-frequency cepstral coefficients 1–12 (c0, overall loudness, omitted). "
-                       "They summarise the spectral envelope — the 'shape' of the vocal tract.")
+                       "They summarise the spectral envelope, roughly the shape of the vocal tract.")
         else:
             st.caption("MFCCs need the stored audio.")
     with tabs[3]:
@@ -69,15 +70,16 @@ def acoustic_tabs(result: dict, key: str, height: int = 280) -> None:
 
 def timeline(result: dict, key: str, height: int = 300) -> None:
     emo = result.get("emotion") or {}
-    ui.source_tag("model", "Model output · per 2 s window")
+    win = emo.get("window_s", 2.0)
+    ui.source_tag("model", f"Model output · {win:g} s windows")
     if not emo.get("ok"):
-        st.caption(f"Timeline unavailable — {emo.get('error', 'emotion model did not run')}.")
+        st.caption(f"Timeline unavailable: {emo.get('error', 'the emotion model did not run')}.")
         return
     tl = emo["timeline"]
     if len(tl["t"]) < 2:
-        st.caption("The recording is shorter than two analysis windows, so the timeline has a single point; "
-                   "see the clip-level prediction.")
-    st.plotly_chart(C.emotion_timeline(tl, height), config=PLOT_CFG, key=f"{key}_tl")
+        st.caption("The recording is shorter than two analysis windows, so the timeline has a single point. "
+                   "See the clip-level prediction.")
+    st.plotly_chart(C.emotion_timeline(tl, height, win), config=PLOT_CFG, key=f"{key}_tl")
 
 
 def transcript_block(result: dict, show_raw: bool = True) -> None:
@@ -87,7 +89,7 @@ def transcript_block(result: dict, show_raw: bool = True) -> None:
         if show_raw:
             st.markdown(f'<div class="vl-quote">{html.escape(tr["text"])}</div>', unsafe_allow_html=True)
     else:
-        st.caption(f"No transcript — {result.get('transcript_error') or 'unavailable'}. "
+        st.caption(f"No transcript: {(result.get('transcript_error') or 'unavailable').rstrip('.')}. "
                    "Showing phrase-level prosody instead.")
 
 
@@ -95,11 +97,11 @@ def expressive_block(result: dict) -> None:
     ui.source_tag("derived", "Expressive markup · from measured prosody")
     st.markdown(f'<div class="vl-quote">{I.expressive_html(result)}</div>', unsafe_allow_html=True)
     st.markdown(
-        '<div class="vl-legend"><b>Bold</b> = louder than your median word (≥ +3 dB) · '
-        '<span class="vl-soft">italic</span> = softer (≤ −5 dB) · '
-        '<span class="vl-high">underline</span> = ≥ 3 semitones above your median pitch · '
-        '↗ ↘ = pitch rise/fall within a word · … / ⏸ = measured pause · chip = emotion model\'s top class '
-        'for that span. Hover a word for its measurements.</div>',
+        '<div class="vl-legend"><b>Bold</b>: at least 3 dB louder than your median word · '
+        '<span class="vl-soft">Italic</span>: at least 5 dB softer · '
+        '<span class="vl-high">Underline</span>: 3 or more semitones above your median pitch · '
+        '↗ ↘: pitch rises or falls within the word · … and ‖: measured pause · '
+        'Coloured label: the emotion model\'s top class for that line. Hover a word for its measurements.</div>',
         unsafe_allow_html=True,
     )
 
@@ -158,28 +160,28 @@ def downloads(result: dict, key: str) -> None:
 
 
 def dashboard(result: dict, key: str = "home") -> None:
-    """The main two-column results layout (mirrors the reference design)."""
+    """The main two-column results layout used on Home."""
     left, right = st.columns([1.55, 1], gap="large")
     with left:
         with st.container(key=f"card_{key}_player"):
             player(result)
         with st.container(key=f"card_{key}_acoustic"):
-            ui.header("Acoustic Analysis", "Explore the visual patterns in your audio")
+            ui.header("Acoustic analysis", "Waveform, spectrum, pitch and energy of the recording")
             acoustic_tabs(result, key)
         with st.container(key=f"card_{key}_timeline"):
-            ui.header("Emotion Timeline", "How the model's prediction changes over time")
+            ui.header("Emotion over time", "Model probabilities for each analysis window")
             timeline(result, key)
     with right:
         with st.container(key=f"card_{key}_emotion"):
-            ui.header("Emotion Recognition", "Predicted emotion and model probability")
-            ui.source_tag("model", "Model output · wav2vec2 (IEMOCAP)")
+            ui.header("Emotion", "Predicted class and model probabilities")
+            ui.source_tag("model", f"Model output · {E.short_name(result.get('emotion'))}")
             ui.emotion_card(result.get("emotion"))
         with st.container(key=f"card_{key}_insights"):
-            ui.header("Key Acoustic Insights", "Measured directly from the signal")
+            ui.header("Key measurements", "Measured directly from the signal")
             ui.source_tag("measured")
             ui.insight_tiles(result["insights"])
         with st.container(key=f"card_{key}_text"):
-            ui.header("Spoken Expressive Text", "What you said and how you said it")
+            ui.header("Transcript", "What you said and how you said it")
             transcript_block(result, show_raw=False)
             expressive_block(result)
             st.markdown("")

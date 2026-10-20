@@ -10,7 +10,7 @@ from velora import storage as S
 from velora import ui
 
 ui.page_title("History", "Your past analyses",
-              ("Kept only for this browser session — nobody else can see it, and it is gone when you leave. "
+              ("Kept only for this browser session. Nobody else can see it, and it is cleared when you leave. "
                if S.SESSION_ONLY else "Everything is stored locally in the project's data folder. ")
               + "Open, compare, rename or delete recordings.")
 st.markdown("")
