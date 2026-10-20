@@ -14,6 +14,8 @@ fpdf2==2.8.9        # PDF report export
 # --- AI models (optional: the app keeps working without them) ---
 # CPU-only PyTorch keeps the download small:
 #   pip install torch==2.14.1 --index-url https://download.pytorch.org/whl/cpu
-torch==2.14.1
+torch==2.14.1 ; sys_platform != "linux"
+# Linux (Streamlit Community Cloud): pin the CPU wheel directly; plain PyPI torch pulls GBs of CUDA libs
+torch @ https://download.pytorch.org/whl/cpu/torch-2.14.1%2Bcpu-cp313-cp313-manylinux_2_28_x86_64.whl ; sys_platform == "linux"
 transformers==5.20.2
 faster-whisper==1.2.1

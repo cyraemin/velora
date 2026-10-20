@@ -4,6 +4,7 @@ import streamlit as st
 
 from velora import audio as A
 from velora import dashboard as D
+from velora import storage as S
 from velora import ui
 
 UPLOAD_SVG = ('<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#5B47D6" stroke-width="2" '
@@ -95,7 +96,7 @@ if result is None:
     with st.container(key="card_home_empty"):
         ui.empty_state("Your analysis will appear here",
                        "Velora measures pitch, energy, timbre and pace, runs a pretrained emotion model, "
-                       "and transcribes what you said — all locally on your computer.")
+                       "and transcribes what you said" + ("." if S.SESSION_ONLY else " — all locally on your computer."))
         st.markdown(
             '<div class="vl-steps">'
             '<div class="vl-step"><b>1 · Measure</b><span>librosa extracts pitch (pYIN), RMS energy, '

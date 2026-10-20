@@ -5,6 +5,7 @@ import streamlit as st
 
 import velora
 from velora import emotion as E
+from velora import storage as S
 from velora import transcribe as T
 from velora import ui
 
@@ -67,9 +68,14 @@ with c2:
 
 with st.container(key="card_about_privacy"):
     ui.header("Privacy")
-    st.markdown("Audio never leaves your computer. Analyses are stored in `data/velora.db` with a 16 kHz copy of "
-                "the audio in `data/audio/` — delete them anytime from **History**, or turn off saving in "
-                "**Engine settings**. The only network access is the one-time model download.")
+    if S.SESSION_ONLY:
+        st.markdown("This hosted copy analyses your audio on its server. Nothing is written to disk: History is kept "
+                    "in memory for your browser session only, is never visible to other visitors, and is discarded "
+                    "when you close the tab. For fully offline use, run Velora on your own computer.")
+    else:
+        st.markdown("Audio never leaves your computer. Analyses are stored in `data/velora.db` with a 16 kHz copy of "
+                    "the audio in `data/audio/` — delete them anytime from **History**, or turn off saving in "
+                    "**Engine settings**. The only network access is the one-time model download.")
 
 with st.expander("Environment"):
     import librosa

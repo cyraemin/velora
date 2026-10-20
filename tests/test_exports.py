@@ -134,3 +134,19 @@ def test_storage_roundtrip_with_original(analysed, monkeypatch, tmp_path):
     assert S.get(res["id"])["id"] == res["id"]
     S.delete(res["id"])
     assert S.load_original(res) is None and S.list_all() == []
+
+
+def test_session_storage_roundtrip(analysed, monkeypatch, tmp_path):
+    import streamlit as st
+
+    monkeypatch.setattr(S, "SESSION_ONLY", True)
+    monkeypatch.setattr(S, "DATA_DIR", tmp_path)  # nothing may be written here
+    monkeypatch.setattr(st, "session_state", {})
+    res, y, sr, data = analysed
+    S.save(res, y, sr, original=data)
+    assert [r["id"] for r in S.list_all()] == [res["id"]]
+    assert S.load_original(res) == data and S.load_audio(res["id"])[1] == sr
+    S.rename(res["id"], "renamed")
+    assert S.get(res["id"])["name"] == "renamed" and S.list_all()[0]["name"] == "renamed"
+    S.delete(res["id"])
+    assert S.list_all() == [] and not any(tmp_path.iterdir())

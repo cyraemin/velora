@@ -26,6 +26,18 @@ py -3.13 -m venv .venv
 
 Use Python 3.13 rather than 3.14. librosa's numba dependency and the ML wheels are more reliable on 3.13.
 
+## Deploying to Streamlit Community Cloud
+
+1. Push this repo to GitHub.
+2. At https://share.streamlit.io choose **Create app → Deploy a public app from GitHub**, pick the repo,
+   branch `main`, main file `app.py`, and under **Advanced settings** set Python to **3.13** (the Linux torch
+   wheel in `requirements.txt` is built for 3.13).
+3. The first boot installs CPU-only PyTorch and downloads the models on first analysis, so allow a few minutes.
+
+On Community Cloud, History is kept per browser session in memory only, so visitors never see each other's
+recordings. The app detects Community Cloud automatically; set `VELORA_STORAGE=session` to get the same
+behaviour on any other host.
+
 ## Pages
 
 | Page | What it does |

@@ -229,7 +229,8 @@ def sidebar_settings() -> None:
             '<path d="M2 17 C 20 17, 24 6, 34 17 S 48 30, 58 17 S 70 2, 80 17 S 94 28, 104 17 S 120 10, 148 17" '
             'stroke="#B8ACF6" stroke-width="1.6" fill="none"/><path d="M2 19 C 26 19, 30 12, 42 19 S 62 26, 74 19 '
             'S 96 12, 110 19 S 134 22, 148 19" stroke="#DCD5FB" stroke-width="1.2" fill="none"/></svg><br>'
-            'Analyze • Understand • Express<br><span style="opacity:.8">Velora v1.0 · runs 100% locally</span></div>',
+            'Analyze • Understand • Express<br><span style="opacity:.8">Velora v1.0 · '
+            + ("private per-session history" if S.SESSION_ONLY else "runs 100% locally") + '</span></div>',
             unsafe_allow_html=True,
         )
 
@@ -269,7 +270,7 @@ def _engine_chip() -> str:
     elif es == "missing" and ts == "missing":
         dot, label = "#9A96B0", "Acoustic analysis only"
     else:
-        dot, label = "#2A9D7F" if es == "loaded" else "#8B7CF0", "AI powered · runs locally"
+        dot, label = "#2A9D7F" if es == "loaded" else "#8B7CF0", "AI powered" + ("" if S.SESSION_ONLY else " · runs locally")
     return f'<span class="vl-chip-top"><i style="background:{dot}"></i>{label}</span>'
 
 
